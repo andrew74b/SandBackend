@@ -175,9 +175,8 @@ type convertAndZip (configLocation)=
         |> Seq.map (fun site -> 
             dateList
             |> Seq.filter (fun date -> 
-                (System.IO.Directory.Exists(source + site + @"\" + date) 
-                && ((System.IO.Directory.GetFiles(source + site + @"\" + date, "*.evtx")).Length > 0) 
-                && (System.IO.Directory.GetFiles(source + site + @"\" + date, "*.zip")).Length = 0))
+                (System.IO.Directory.Exists(source + site + @"\" + date) && ((System.IO.Directory.GetFiles(source + site + @"\" + date, "*.evtx")).Length > 0) && (System.IO.Directory.GetFiles(source + site + @"\" + date, "*.zip")).Length = 0))
+
             |> Seq.map (fun date -> 
                 {
                     zipFile = source + site + @"\" + date + @"\" + date + ".zip";
