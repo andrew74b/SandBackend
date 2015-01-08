@@ -88,7 +88,7 @@ module GetWorklist =
     let goodCondition siteStatus = (siteStatus.Status = "Good") && (siteStatus.Files.Length > 0)
     let badCondition siteStatus = (siteStatus.Status = "Dir does not exist") || (siteStatus.Files.Length = 0)
 
-    let getFilesStatus site source filter days condition= 
+    let getFilesStatus site source filter days condition = 
         getSiteStatus site source filter days
         |> Seq.filter (fun siteStatus -> condition siteStatus) 
         |> Seq.map (fun siteStatus -> 
@@ -170,48 +170,48 @@ type convertAndZip (configLocation)=
     let filter = "*.zip"
     
     let dateList = GetWorklist.dateArray days
-    member this.zipEvtx =
+
+    member this.zipLedgers =
         sites
         |> Seq.map (fun site -> 
             dateList
             |> Seq.filter (fun date -> 
-                (System.IO.Directory.Exists(source + site + @"\" + date) && ((System.IO.Directory.GetFiles(source + site + @"\" + date, "*.evtx")).Length > 0) && (System.IO.Directory.GetFiles(source + site + @"\" + date, "*.zip")).Length = 0))
+                System.IO.Directory.Exists(source + site + @"\" + date) 
+                && (System.IO.Directory.GetFiles(source + site + @"\" + date, "*.evtx")).Length > 0
+                && (System.IO.Directory.GetFiles(source + site + @"\" + date, "*.zip")).Length = 0)
 
             |> Seq.map (fun date -> 
                 {
                     zipFile = source + site + @"\" + date + @"\" + date + ".zip";
                     evtxs = System.IO.Directory.GetFiles(source + site + @"\" + date, "*.evtx");
                 }))
-                (*
-                
-                evtxs = source + site + @"\" + date + 
-            let folderName = System.IO.Directory.GetParent(zipFolder + @"\" + "filler").Name
-            )
         |> Seq.concat
+        |> Seq.toList
 
-
-        let folderName = System.IO.Directory.GetParent(zipFolder + @"\" + "filler").Name
-        let zipFile = ZipFile.Open(zipFolder + @"\" + folderName + ".zip", ZipArchiveMode.Create)
-        let createAndZipFile fileToZip = 
+    member this.zipEvtx() =
+        let createAndZipFile zipLedger = 
             async {
-                ignore (zipFile.CreateEntryFromFile(fileToZip, System.IO.Path.GetFileName(fileToZip)), CompressionLevel.Optimal)
+                let zipFile = ZipFile.Open(zipLedger.zipFile, ZipArchiveMode.Create)
+
+                //Why do i have to use a for loop ???
+                for file in zipLedger.evtxs do
+                    zipFile.CreateEntryFromFile(file, System.IO.Path.GetFileName(file), CompressionLevel.Optimal) |> ignore
+                zipFile.Dispose()
             }
 
         let results =
-            ignore (System.IO.Directory.GetFiles(zipFolder, "*.evtx")
+            this.zipLedgers
             |> Seq.map (createAndZipFile)
             |> Async.Parallel
             |> Async.RunSynchronously
-            |> Seq.toList)
-            ignore (zipFile.Dispose())
-            
+            |> Seq.toList
 
-        results *)
+        results 
 
     member this.evtFilesToDo = 
         sites
         |> Seq.map (fun site -> 
-            GetWorklist.getFilesStatus site source "*.evt" days GetWorklist.goodCondition 
+            GetWorklist.getFilesStatus site source "*.evt" days GetWorklist.goodCondition
             |> List.filter (fun filename -> filename.EndsWith("evt"))
             |> List.map (fun partialName -> source + site + @"\" + partialName)
             |> List.filter (fun filename -> not (System.IO.File.Exists(filename + "x")))
@@ -246,11 +246,10 @@ type convertAndZip (configLocation)=
 //Cleanup how filenames are used
 
 (*
-add-type -Path D:\Audit\Copy\Library1\Library1\bin\Debug\Library1.dll
-$files = [Audit.Copy.Copy]::filesToCopy("ARN","*")
-measure-command{[Audit.Copy.Copy]::smartCopy($files, "ARN")}
+Add-Type -path D:\Audit\BackEnd\BackEnd\BackEnd\bin\Debug\BackEnd.dll
+$a = (New-Object Audit.Copy.convertAndZip "D:\Audit\config.xml")
+$a.convertEVT()
 
-add-type -Path D:\Audit\Copy\Library1\Library1\bin\Debug\Library1.dll
 *)
 
 
