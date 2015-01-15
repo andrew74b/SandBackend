@@ -149,28 +149,58 @@ type Copy (configLocation) =
         |> Async.RunSynchronously
         |> Seq.toList
 
-(* used for performance testing 
-    let dumCopy filesToCopy site =
-        let stopwatch = System.Diagnostics.Stopwatch.StartNew()
-        filesToCopy |> List.map (fun file -> 
-            let fullSourceName = source + site + @"\" + file
-            let fullDestinationName = destination + site + @"\" + file
-            System.IO.File.Copy(fullSourceName, fullDestinationName)
-            fullSourceName + " copied to " + fullDestinationName)
-*)
-
-type convertAndZip (configLocation)=
+type ConvertToEvtx (configLocation) =
 
     let configFile = new Settings(configLocation)
     let config = configFile.getSettings
     let source = config.Source
-    let destination = config.Destination
+    let sites = config.Sites
+    let days = config.Days
+   
+    let dateList = GetWorklist.dateArray days
+    member this.evtFilesToDo =  
+        sites
+        |> Seq.map (fun site -> 
+            GetWorklist.getFilesStatus site source "*.evt" days GetWorklist.goodCondition
+            |> List.filter (fun filename -> filename.EndsWith("evt"))
+            |> List.map (fun partialName -> source + site + @"\" + partialName)
+            |> List.filter (fun filename -> not (System.IO.File.Exists(filename + "x")))
+            )
+        |> Seq.concat
+
+    member this.convertEVT() = 
+        let convertEvtToEvtx evt = 
+            async {
+                let evtx = evt + "x"
+                let wevt = new System.Diagnostics.Process();
+                wevt.StartInfo.FileName <- "wevtutil.exe";
+                wevt.StartInfo.Arguments <- ("epl " + evt + " " + evtx + " /lf:true")
+                wevt.StartInfo.RedirectStandardOutput <- true
+                wevt.StartInfo.UseShellExecute <- false
+                let junk = wevt.Start()
+                wevt.WaitForExit()
+                return evt + " converted!"
+            }
+
+        let results =
+            this.evtFilesToDo
+            |> Seq.map (convertEvtToEvtx)
+            |> Async.Parallel
+            |> Async.RunSynchronously
+            |> Seq.toList
+
+        results
+
+type ZipEvtx (configLocation) =
+
+    let configFile = new Settings(configLocation)
+    let config = configFile.getSettings
+    let source = config.Source
     let sites = config.Sites
     let days = config.Days
     let filter = "*.zip"
-    
+   
     let dateList = GetWorklist.dateArray days
-
     member this.zipLedgers =
         sites
         |> Seq.map (fun site -> 
@@ -208,41 +238,6 @@ type convertAndZip (configLocation)=
 
         results 
 
-    member this.evtFilesToDo = 
-        sites
-        |> Seq.map (fun site -> 
-            GetWorklist.getFilesStatus site source "*.evt" days GetWorklist.goodCondition
-            |> List.filter (fun filename -> filename.EndsWith("evt"))
-            |> List.map (fun partialName -> source + site + @"\" + partialName)
-            |> List.filter (fun filename -> not (System.IO.File.Exists(filename + "x")))
-            )
-        |> Seq.concat
-
-    member this.convertEVT() = 
-        let convertEvtToEvtx evt = 
-            async {
-                let evtx = evt + "x"
-                let wevt = new System.Diagnostics.Process();
-                wevt.StartInfo.FileName <- "wevtutil.exe";
-                wevt.StartInfo.Arguments <- ("epl " + evt + " " + evtx + " /lf:true")
-                wevt.StartInfo.RedirectStandardOutput <- true
-                wevt.StartInfo.UseShellExecute <- false
-                let junk = wevt.Start()
-                wevt.WaitForExit()
-                return evt + " converted!"
-            }
-
-        let results =
-            this.evtFilesToDo
-            |> Seq.map (convertEvtToEvtx)
-            |> Async.Parallel
-            |> Async.RunSynchronously
-            |> Seq.toList
-
-        results
-
-
-
 //Cleanup how filenames are used
 
 (*
@@ -251,8 +246,3 @@ $a = (New-Object Audit.Copy.convertAndZip "D:\Audit\config.xml")
 $a.convertEVT()
 
 *)
-
-
-
-
-
