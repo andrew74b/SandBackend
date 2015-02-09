@@ -8,10 +8,11 @@
     <ProjectGuid>ff53d467-e08c-4034-b7f9-5380851e24b6</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>BackEndHelper</RootNamespace>
-    <AssemblyName>BackEndHelper</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <AssemblyName>AuditHelper</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
     <Name>AuditHelper</Name>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
