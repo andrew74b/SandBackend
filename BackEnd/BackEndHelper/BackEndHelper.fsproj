@@ -5,14 +5,13 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>990fd250-a15b-401e-a2ba-013a23eaccde</ProjectGuid>
+    <ProjectGuid>ff53d467-e08c-4034-b7f9-5380851e24b6</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>BackEnd</RootNamespace>
-    <AssemblyName>BackEnd</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <RootNamespace>BackEndHelper</RootNamespace>
+    <AssemblyName>BackEndHelper</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
-    <Name>BackEnd</Name>
-    <TargetFrameworkProfile />
+    <Name>BackEndHelper</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +21,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\BackEnd.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\BackEndHelper.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +30,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\BackEnd.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\BackEndHelper.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -40,14 +39,10 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helpers.fs" />
-    <Compile Include="BackUp.fs" />
+    <Compile Include="Library1.fs" />
     <None Include="Script.fsx" />
   </ItemGroup>
   <PropertyGroup>
