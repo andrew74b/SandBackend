@@ -34,6 +34,9 @@
     <DocumentationFile>bin\Release\BackEnd.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BackEndHelper">
+      <HintPath>..\BackEndHelper\bin\Debug\BackEndHelper.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
@@ -46,9 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helpers.fs" />
     <Compile Include="BackUp.fs" />
-    <None Include="Script.fsx" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
