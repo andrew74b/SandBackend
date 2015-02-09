@@ -5,13 +5,13 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>990fd250-a15b-401e-a2ba-013a23eaccde</ProjectGuid>
+    <ProjectGuid>58e1bf50-07ff-4324-b327-ab1239ff4ffc</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>BackEnd</RootNamespace>
-    <AssemblyName>BackEnd</AssemblyName>
+    <RootNamespace>Reporting</RootNamespace>
+    <AssemblyName>Reporting</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
-    <Name>BackEnd</Name>
+    <Name>Reporting</Name>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -22,7 +22,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\BackEnd.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Reporting.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +31,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\BackEnd.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Reporting.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AuditHelper">
@@ -43,13 +43,10 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BackUp.fs" />
+    <Compile Include="Reporting.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
