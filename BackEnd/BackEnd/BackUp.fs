@@ -6,13 +6,7 @@ open System.IO.Compression
 open System.Xml
 open Sands.Helpers
 
-type Config =
-    {
-        Sites: string[];
-        Days: float;
-        Source: string;
-        Destination: string;
-    }
+
 type copyLedger = 
     {
         Source: string;
@@ -24,48 +18,29 @@ type zipLedger =
         evtxs: string[];
     }
 
-type Settings (location) =
-
-    let xml = System.IO.File.ReadAllText(location)
-    let doc = new XmlDocument()
-    member this.getSettings = 
-        doc.LoadXml xml;
-        let readnode node = 
-            doc.SelectNodes (node + "/text()")
-            |> Seq.cast<XmlNode>
-            |> Seq.map (fun node -> node.Value)
-            |> Seq.toList
-        
-        {
-            Sites = (readnode "/Config/Sites/Site") |> Seq.toArray;
-            Days = (float)(readnode "/Config/Days").[0];
-            Source = (readnode "/Config/Source").[0];
-            Destination = (readnode "/Config/Destination").[0]
-        }
-
 
 type Copy (configLocation) = 
 
-    let configFile = new Settings(configLocation)
-    let config = configFile.getSettings
+    let configFile = new Sands.Helpers.SandsConfig (configLocation)
+    let config = configFile.Config
     let source = config.Source
     let destination = config.Destination
-    let sites = config.Sites
+    let sites = config.SiteInfo
     let days = config.Days
     let filter = "*.zip"
 
     member this.WorkList = 
         sites
         |> Seq.map (fun site -> 
-            let workListQuery = GetWorklist.getWorkList site source destination filter days
+            let workListQuery = GetWorklist.getWorkList site.Site source destination filter days
             
             if workListQuery.Length > 0 then
                 workListQuery
                 |> Seq.filter (fun file-> not (String.IsNullOrEmpty(file)))
                 |> Seq.map (fun file -> 
                     {
-                        Source = source + site + @"\" + file
-                        Destination = destination + site + @"\" + file
+                        Source = source + site.Site + @"\" + file
+                        Destination = destination + site.Site + @"\" + file
                     })
             else
                 Seq.empty
@@ -87,19 +62,19 @@ type Copy (configLocation) =
 
 type ConvertToEvtx (configLocation) =
 
-    let configFile = new Settings(configLocation)
-    let config = configFile.getSettings
+    let configFile = new Sands.Helpers.SandsConfig (configLocation)
+    let config = configFile.Config
     let source = config.Source
-    let sites = config.Sites
+    let sites = config.SiteInfo
     let days = config.Days
    
     let dateList = GetWorklist.dateArray days
     member this.evtFilesToDo =  
         sites
         |> Seq.map (fun site -> 
-            GetWorklist.getFilesStatus site source "*.evt" days GetWorklist.goodCondition
+            GetWorklist.getFilesStatus site.Site source "*.evt" days GetWorklist.goodCondition
             |> List.filter (fun filename -> filename.EndsWith("evt"))
-            |> List.map (fun partialName -> source + site + @"\" + partialName)
+            |> List.map (fun partialName -> source + site.Site + @"\" + partialName)
             |> List.filter (fun filename -> not (System.IO.File.Exists(filename + "x")))
             )
         |> Seq.concat
@@ -129,10 +104,10 @@ type ConvertToEvtx (configLocation) =
 
 type ZipEvtx (configLocation) =
 
-    let configFile = new Settings(configLocation)
-    let config = configFile.getSettings
+    let configFile = new Sands.Helpers.SandsConfig (configLocation)
+    let config = configFile.Config
     let source = config.Source
-    let sites = config.Sites
+    let sites = config.SiteInfo
     let days = config.Days
     let filter = "*.zip"
    
@@ -142,14 +117,14 @@ type ZipEvtx (configLocation) =
         |> Seq.map (fun site -> 
             dateList
             |> Seq.filter (fun date -> 
-                System.IO.Directory.Exists(source + site + @"\" + date) 
-                && (System.IO.Directory.GetFiles(source + site + @"\" + date, "*.evtx")).Length > 0
-                && (System.IO.Directory.GetFiles(source + site + @"\" + date, "*.zip")).Length = 0)
+                System.IO.Directory.Exists(source + site.Site + @"\" + date) 
+                && (System.IO.Directory.GetFiles(source + site.Site + @"\" + date, "*.evtx")).Length > 0
+                && (System.IO.Directory.GetFiles(source + site.Site + @"\" + date, "*.zip")).Length = 0)
 
             |> Seq.map (fun date -> 
                 {
-                    zipFile = source + site + @"\" + date + @"\" + date + ".zip";
-                    evtxs = System.IO.Directory.GetFiles(source + site + @"\" + date, "*.evtx");
+                    zipFile = source + site.Site + @"\" + date + @"\" + date + ".zip";
+                    evtxs = System.IO.Directory.GetFiles(source + site.Site + @"\" + date, "*.evtx");
                 }))
         |> Seq.concat
         |> Seq.toList

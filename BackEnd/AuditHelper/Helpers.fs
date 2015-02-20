@@ -1,10 +1,12 @@
 ﻿namespace Sands.Helpers
 
 open System
+open System.Xml
 
 type Span = Span of TimeSpan with
     static member (+) (d:DateTime, Span wrapper) = d + wrapper
     static member Zero = Span(new TimeSpan(0L))
+
 type AuditStatus =
     {
         Site: string;
@@ -12,6 +14,71 @@ type AuditStatus =
         Files: string[];
         Status: bool;
     }
+
+type FilerInfo = 
+    {
+        Host: string;
+        IP: string
+    }
+
+type SiteInfo = 
+    {
+        Site: string;
+        Filers: FilerInfo[]
+    }
+
+type Config =
+    {
+        SiteInfo: SiteInfo[];
+        Days: float;
+        Source: string;
+        Destination: string;
+    }
+
+type SandsConfig (file) =
+
+    let xml = System.IO.File.ReadAllText(file)
+    let doc = new XmlDocument()
+    
+
+    let SiteInfo = 
+        doc.LoadXml xml
+        doc.SelectNodes ("/Config/Sites/Site")
+        |> Seq.cast<XmlNode>
+        |> Seq.map (fun x -> 
+            let siteName = x.Attributes.["name"].Value
+            
+            let fInfo = 
+                x.ChildNodes
+                |> Seq.cast<XmlNode>
+                |> Seq.map (fun x -> 
+                    let host = x.Attributes.["host"].Value
+                    let ip = x.Attributes.["IP"].Value
+                    {
+                        Host = host;
+                        IP = ip
+                    }
+                    )
+                |> Seq.toArray
+                
+            {
+                Site = siteName
+                Filers = fInfo
+            })
+        |> Seq.toArray
+
+    let getTag tagname = 
+        doc.LoadXml xml
+        (doc.SelectNodes ("/Config/" + tagname + "/text()")).[0].Value
+
+    member this.Config = 
+        {
+            SiteInfo = SiteInfo;
+            Days = (float) (getTag "Days");
+            Source = getTag "Source";
+            Destination = getTag "Destination"        
+        }
+
 
 module GetWorklist =
     (*
@@ -73,3 +140,5 @@ module GetWorklist =
             |> Set.toList
 
         uniqueFiles SourceFiles destinationFiles
+
+
